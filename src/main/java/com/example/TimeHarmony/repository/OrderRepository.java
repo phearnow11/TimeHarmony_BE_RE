@@ -118,5 +118,29 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
   @Query(value = "SELECT SUM(total_price) FROM [dbo].[Orders] WHERE CAST(create_time AS DATE) = :date ", nativeQuery = true)
   String totalPriceOrderByDate(@Param("date") String date);
 
+  @Query(value = "select sum ([dbo].[Orders].[total_price]/51) from [dbo].[Orders] WHERE (state <> 4 and state <> 5) and CAST(create_time AS DATE) between :from and :to ", nativeQuery = true)
+  String getWebProfitByDate(@Param("from") String from, @Param("to") String to);
+
+  @Query(value = "SELECT SUM([total_price]/51)  FROM [dbo].[Orders] WHERE (state <> 4 and state <> 5 ) and CONVERT(VARCHAR(7), create_time, 120) BETWEEN :fromM AND :toM", nativeQuery = true)
+  String getWebProfitByMonth(@Param("fromM") String fromM, @Param("toM") String toM);
+
+  @Query(value = "SELECT COUNT(*) FROM [dbo].[Orders] WHERE (state <> 4 and state <> 5 ) and payment_method = 'ATM' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
+  String numATMcompleteOrder(@Param("month") String month);
+
+  @Query(value = "SELECT COUNT(*) FROM [dbo].[Orders] WHERE state = 3 and payment_method = 'COD' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
+  String numCODcompleteOrder(@Param("month") String month);
+
+  @Query(value = "SELECT sum(total_price)  FROM [dbo].[Orders] WHERE (state <> 4 and state <> 5 ) and payment_method = 'ATM' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
+  String totalAmountATM(@Param("month") String month);
+
+  @Query(value = "SELECT sum(total_price)  FROM [dbo].[Orders] WHERE state = 3 and payment_method = 'COD' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
+  String totalAmountCOD(@Param("month") String month);
+
+  @Query(value = "SELECT sum([total_price]/51)  FROM [dbo].[Orders] WHERE (state <> 4 and state <> 5 ) and payment_method = 'ATM' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
+  String totalProfitATM(@Param("month") String month);
+
+  @Query(value = "SELECT sum([total_price]/51)  FROM [dbo].[Orders] WHERE state = 3 and payment_method = 'COD' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
+  String totalProfitCOD(@Param("month") String month);
+
  
 }
