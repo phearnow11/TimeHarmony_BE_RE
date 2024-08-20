@@ -214,9 +214,14 @@ public class AdminService implements IAdminService {
 
   @Override
   public float getProfit() {
-    return ORDER_REPOSITORY.getWebProfit();
-  }
+    String rs = ORDER_REPOSITORY.getWebProfit();
 
+    if (rs == null) {
+      return 0;
+    }
+    return Float.parseFloat(rs);
+  }
+  
   @Override
   public List<String> getAllShippingOrder() {
     return ORDER_REPOSITORY.getAllShippingOrder();
