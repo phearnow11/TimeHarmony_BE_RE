@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.TimeHarmony.entity.Admins;
+import com.example.TimeHarmony.entity.AppraiseRequest;
 import com.example.TimeHarmony.entity.Members;
+import com.example.TimeHarmony.entity.Orders;
 import com.example.TimeHarmony.entity.Payment;
 import com.example.TimeHarmony.entity.Report;
+import com.example.TimeHarmony.entity.Staff;
 import com.example.TimeHarmony.entity.Watch;
 import com.example.TimeHarmony.enumf.StaffRole;
 
@@ -45,5 +48,17 @@ public interface IAdminService {
   String changeStaffRole(String id, StaffRole role);
 
   public List<Payment> getAllFailOrder();
+
+  String assignAppraiser(String request_id, String aid, String date);
+
+  List<AppraiseRequest> getAllRequest();
+
+  List<Orders> getOrderByState(int state);
+
+  List<Staff> getStaffByRole(StaffRole role);
+
+  String updateAssignAppraiser(String request_id, String aid, String date);
+
+  String assignShipper(String oid, String mid);
 
 }

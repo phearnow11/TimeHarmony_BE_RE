@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.TimeHarmony.entity.AppraiseRequest;
+import com.example.TimeHarmony.entity.Orders;
 import com.example.TimeHarmony.entity.Watch;
 
 public interface IStaffService {
@@ -22,4 +23,12 @@ public interface IStaffService {
   String updateLocation(String id, Map<String, Object> data);
 
   List<AppraiseRequest> getRequestsFromSeller(String sid);
+
+  String acceptRequest(String request_id, String aid);
+
+  List<AppraiseRequest> getMyRequests(String aid);
+
+  Map<String, List<String>> getMyAssignedWatch(String aid);
+
+  List<Orders> getMyAssignedOrder(String sid);
 }

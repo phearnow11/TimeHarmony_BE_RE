@@ -1,5 +1,9 @@
 package com.example.TimeHarmony.service;
 
+import java.sql.Date;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,17 +14,22 @@ import org.springframework.stereotype.Service;
 
 import com.example.TimeHarmony.builder.MemberBuilder;
 import com.example.TimeHarmony.entity.Admins;
+import com.example.TimeHarmony.entity.AppraiseRequest;
 import com.example.TimeHarmony.entity.Members;
+import com.example.TimeHarmony.entity.Orders;
 import com.example.TimeHarmony.entity.Payment;
 import com.example.TimeHarmony.entity.Report;
 import com.example.TimeHarmony.entity.Sellers;
+import com.example.TimeHarmony.entity.Staff;
 import com.example.TimeHarmony.entity.Users;
 import com.example.TimeHarmony.entity.Watch;
 import com.example.TimeHarmony.enumf.OrderState;
+import com.example.TimeHarmony.enumf.RequestStatus;
 import com.example.TimeHarmony.enumf.Roles;
 import com.example.TimeHarmony.enumf.StaffRole;
 import com.example.TimeHarmony.enumf.UserAuthenticationStatus;
 import com.example.TimeHarmony.repository.AdminRepository;
+import com.example.TimeHarmony.repository.AppraiseRequestRepository;
 import com.example.TimeHarmony.repository.AuthoritiesRepository;
 import com.example.TimeHarmony.repository.MemberRepository;
 import com.example.TimeHarmony.repository.OrderRepository;
@@ -68,7 +77,9 @@ public class AdminService implements IAdminService {
   private OrderService ORDER_SERVICE;
 
   @Autowired
-  private ReportRepository REPORT_REPOSITY; 
+  private ReportRepository REPORT_REPOSITY;
+  @Autowired
+  private AppraiseRequestRepository APPRAISE_REQUEST_REPOSITORY;
 
   @Override
   public List<Members> getMembers() {
@@ -147,7 +158,7 @@ public class AdminService implements IAdminService {
 
   @Override
   public List<Report> viewReports() {
-    return REPORT_REPOSITY.findAll(); 
+    return REPORT_REPOSITY.findAll();
   }
 
   @Override
@@ -221,16 +232,16 @@ public class AdminService implements IAdminService {
     }
     return Float.parseFloat(rs);
   }
-  
+
   @Override
   public List<String> getAllShippingOrder() {
     return ORDER_REPOSITORY.getAllShippingOrder();
   }
 
-@Override
-public List<Payment> getAllFailOrder() {
-    return PAYMENT_REPOSITORY.getAllFailOrder(); 
-}
+  @Override
+  public List<Payment> getAllFailOrder() {
+    return PAYMENT_REPOSITORY.getAllFailOrder();
+  }
 
   @Override
   public String changeStaffRole(String id, StaffRole role) {
@@ -242,4 +253,87 @@ public List<Payment> getAllFailOrder() {
       return e.toString();
     }
   }
+
+  @Override
+  public String assignAppraiser(String request_id, String aid, String date) {
+    try {
+      if (STAFF_REPOSITORY.getRole(UUID.fromString(aid)) != StaffRole.APPRAISER)
+        throw new Exception("ID is not Appraiser");
+      // if (APPRAISE_REQUEST_REPOSITORY.checkAppraiser(request_id) != null)
+      // throw new Exception("Request is already assigned");
+      if (APPRAISE_REQUEST_REPOSITORY.getStatus(request_id) != RequestStatus.NEW)
+        throw new Exception("Logic Error");
+      if (date == null || date.isEmpty())
+        throw new Exception("Appointment date is required");
+
+      // auto unassign if request is already assigned
+      APPRAISE_REQUEST_REPOSITORY.unassignAppraiser(request_id);
+      APPRAISE_REQUEST_REPOSITORY.assignRequest(UUID.fromString(aid), request_id, Timestamp.valueOf(date));
+      APPRAISE_REQUEST_REPOSITORY.updateStatus(RequestStatus.PROCESSING, request_id);
+
+      return "Appraiser " + aid + " is assigned to request " + request_id;
+    } catch (Exception e) {
+      return e.toString();
+    }
+
+  }
+
+  @Override
+  public List<AppraiseRequest> getAllRequest() {
+    try {
+      APPRAISE_REQUEST_REPOSITORY.updateExpired(Timestamp.valueOf(LocalDateTime.now().plusHours(2)));
+      return APPRAISE_REQUEST_REPOSITORY.findAll();
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @Override
+  public List<Orders> getOrderByState(int state) {
+    return ORDER_REPOSITORY.getOrderByState(state);
+  }
+
+  @Override
+  public List<Staff> getStaffByRole(StaffRole role) {
+    return STAFF_REPOSITORY.getStaffByRole(role);
+  }
+
+  @Override
+  public String updateAssignAppraiser(String request_id, String aid, String date) {
+    try {
+      if (date == null || date.isEmpty())
+        throw new Exception("Date is required");
+      if (APPRAISE_REQUEST_REPOSITORY.getStatus(request_id) != RequestStatus.PROCESSING)
+        throw new Exception("Logic Error");
+      if (aid == null || aid.isEmpty()) {
+        APPRAISE_REQUEST_REPOSITORY.updateAppraiserADate(null, null, request_id);
+        return "Appraiser Unassgined";
+      }
+      APPRAISE_REQUEST_REPOSITORY.updateAppraiserADate(UUID.fromString(aid), Timestamp.valueOf(date), request_id);
+      return "Request Updated";
+    } catch (Exception e) {
+      return e.toString();
+    }
+  }
+
+  @Override
+  public String assignShipper(String oid, String mid) {
+    try {
+      if (STAFF_REPOSITORY.getRole(UUID.fromString(mid)) != StaffRole.SHIPPER)
+        throw new Exception("Staff selected is not shipper");
+      if (ORDER_REPOSITORY.getOrderWatchStates(oid).contains(3))
+        throw new Exception("Order is not packed");
+      if (ORDER_REPOSITORY.getState(oid) == OrderState.SHIPPING)
+        throw new Exception("Order is already shipping");
+
+      // Auto unassign if order is already assigned
+      STAFF_REPOSITORY.unassignOrderShipper(oid);
+      STAFF_REPOSITORY.assignOrderToShipper(UUID.fromString(mid), oid);
+
+      return "Shipper Assigned";
+    } catch (Exception e) {
+      return e.toString();
+    }
+  }
+
 }
