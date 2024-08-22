@@ -486,4 +486,9 @@ public class AdminService implements IAdminService {
     return ORDER_REPOSITORY.getDailyMoneyReceiveByDayCOD(startDate, endDate); 
   }
 
+  @Override
+  public List<Map<String, Integer>> getDailyNumOrderSuccess(String startDate, String endDate) {
+    return ORDER_REPOSITORY.getSuccessNumOrderByDay(startDate, endDate); 
+  }
+
 }

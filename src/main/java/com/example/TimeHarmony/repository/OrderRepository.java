@@ -157,6 +157,6 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
       "ORDER BY received_date", nativeQuery = true)
   List<Map<String, Long>> getDailyRevenueByDay(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-  
-
+  @Query(value = "select received_date as date, count(*) as quantity_order from [dbo].[Orders] where received_date between :startDate and :endDate and state = 3 group by received_date order by received_date", nativeQuery = true)
+  List<Map<String, Integer>> getSuccessNumOrderByDay(@Param("startDate") String startDate, @Param("endDate") String endDate);
 }

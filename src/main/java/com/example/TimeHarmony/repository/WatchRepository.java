@@ -196,4 +196,9 @@ public interface WatchRepository extends JpaRepository<Watch, String> {
   @Query(value = "SELECT top(3) brand, COUNT(*) FROM watch where (state <> 0 and state <> 2) and brand is not null GROUP BY brand ORDER BY COUNT(*) DESC", nativeQuery=true)
   List<Map<String, Integer>> top3brand(); 
 
+  @Query(value = "select sold_date as date, sum(price) as daily_profit from [dbo].[Watch] where sold_date between :startDate and :endDate and state = 6 and member_id = :mid and price <> 0 group by sold_date order by sold_date", nativeQuery= true)
+  List<Map<String, Long>> getDailyProfit(@Param("mid") UUID mid, @Param("startDate") String startDate, @Param("endDate") String endDate); 
+
+
+
 }

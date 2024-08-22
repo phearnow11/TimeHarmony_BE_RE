@@ -87,7 +87,8 @@ public interface IAdminService {
 
   List<Map<String, Long>>getDailyMoneyCOD(String startDate, String endDate); 
 
-
   List<Map<String, Long>>getDailyRevenue(String startDate, String endDate); 
+
+  List<Map<String, Integer>> getDailyNumOrderSuccess(String startDate, String endDate); 
 
 }

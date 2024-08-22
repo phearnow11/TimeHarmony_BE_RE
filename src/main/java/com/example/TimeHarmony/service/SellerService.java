@@ -338,4 +338,9 @@ public class SellerService implements ISellerService {
     }
   }
 
+  @Override
+  public List<Map<String, Long>> getDailyProfit(String sid, String startDate, String endDate) {
+    return WATCH_REPOSITORY.getDailyProfit(UUID.fromString(sid), startDate, endDate); 
+  }
+
 }

@@ -50,4 +50,5 @@ public interface ISellerService {
 
   List<AppraiseRequest> getMyRequest(String sid);
 
+  List<Map<String, Long>> getDailyProfit(String sid, String startDate, String endDate); 
 }

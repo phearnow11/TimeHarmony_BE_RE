@@ -167,4 +167,10 @@ public class SellerController {
     return SELLER_SERVICE.getMyRequest(id);
   }
 
+  @RequestMapping(value ="get/daily-profit/{id}/{startDate}to{endDate}", method= RequestMethod.GET)
+  public List<Map<String, Long>> getDailyProfit(@PathVariable("id") String id, @PathVariable("startDate") String startDate,
+  @PathVariable("endDate") String endDate){
+    return SELLER_SERVICE.getDailyProfit(id, startDate, endDate); 
+  }
+
 }

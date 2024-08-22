@@ -297,5 +297,11 @@ public class AdminController {
       @PathVariable("endDate") String endDate) {
     return ADMIN_SERVICE.getDailyMoneyCOD(startDate, endDate);
   }
+
+  @RequestMapping(value = "get/daily-success-order/{startDate}to{endDate}", method = RequestMethod.GET)
+  public List<Map<String, Integer>> getDailySuccessOrder(@PathVariable("startDate") String startDate,
+      @PathVariable("endDate") String endDate) {
+    return ADMIN_SERVICE.getDailyNumOrderSuccess(startDate, endDate); 
+  }
 }
 
