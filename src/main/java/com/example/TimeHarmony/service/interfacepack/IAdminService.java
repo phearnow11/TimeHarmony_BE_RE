@@ -59,6 +59,35 @@ public interface IAdminService {
 
   String updateAssignAppraiser(String request_id, String aid, String date);
 
+  int orderOfDay(String date);
+
+  int successOrderOfDay(String date);
+
+  long totalAmountOrderOfDay(String date);
+
+  long totalAmountSuccess(String date);
+
+  List<Map<String, Integer>> top3Brand();
+
+  float getWebProfitByDate(String from, String to);
+
+  float getWebProfitByMonth(String fromM, String toM);
+
   String assignShipper(String oid, String mid);
+
+  int getSuccessOrderByMonth(String month); 
+
+  long getTotalAmountSuccessOrderByMonth(String month); 
+
+  long getTotalProfitOrderByMonth(String month); 
+
+  List<Members> getMemberByState(int state); 
+
+  List<Map<String, Long>>getDailyMoneyATM(String startDate, String endDate); 
+
+  List<Map<String, Long>>getDailyMoneyCOD(String startDate, String endDate); 
+
+
+  List<Map<String, Long>>getDailyRevenue(String startDate, String endDate); 
 
 }

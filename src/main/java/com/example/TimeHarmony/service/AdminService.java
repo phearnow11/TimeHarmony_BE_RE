@@ -1,8 +1,6 @@
 package com.example.TimeHarmony.service;
 
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -317,6 +315,69 @@ public class AdminService implements IAdminService {
   }
 
   @Override
+  public int orderOfDay(String date) {
+    String rs = ORDER_REPOSITORY.NumOfOrderByDate(date);
+
+    if (rs == null) {
+      return 0;
+    }
+    return Integer.parseInt(rs);
+  }
+
+  @Override
+  public int successOrderOfDay(String date) {
+    String rs = ORDER_REPOSITORY.NumOfOrderSuccessByDate(date);
+    if (rs == null) {
+      return 0;
+    }
+    return Integer.parseInt(rs);
+  }
+
+  @Override
+  public long totalAmountOrderOfDay(String date) {
+    String rs = ORDER_REPOSITORY.totalPriceOrderByDate(date);
+
+    if (rs == null) {
+      return 0;
+    }
+    return Long.parseLong(rs);
+  }
+
+  @Override
+  public long totalAmountSuccess(String date) {
+    String rs = ORDER_REPOSITORY.totalPriceOrderSuccessByDate(date);
+    if (rs == null) {
+      return 0;
+    }
+    return Long.parseLong(rs);
+  }
+
+  @Override
+  public List<Map<String, Integer>> top3Brand() {
+    return WATCH_REPOSITORY.top3brand();
+  }
+
+  @Override
+  public float getWebProfitByDate(String from, String to) {
+    String rs = ORDER_REPOSITORY.getWebProfitByDate(from, to);
+
+    if (rs == null) {
+      return 0;
+    }
+    return Float.parseFloat(rs);
+  }
+
+  @Override
+  public float getWebProfitByMonth(String fromM, String toM) {
+    String rs = ORDER_REPOSITORY.getWebProfitByMonth(fromM, toM);
+
+    if (rs == null) {
+      return 0;
+    }
+    return Float.parseFloat(rs);
+  }
+
+  @Override
   public String assignShipper(String oid, String mid) {
     try {
       if (STAFF_REPOSITORY.getRole(UUID.fromString(mid)) != StaffRole.SHIPPER)
@@ -334,6 +395,95 @@ public class AdminService implements IAdminService {
     } catch (Exception e) {
       return e.toString();
     }
+  }
+
+  @Override
+  public int getSuccessOrderByMonth(String month) {
+    String rs1 = ORDER_REPOSITORY.numATMcompleteOrder(month);
+    String rs2 = ORDER_REPOSITORY.numCODcompleteOrder(month);
+
+    int num1, num2;
+    if (rs1 == null) {
+      num1 = 0;
+    } else {
+      num1 = Integer.parseInt(rs1);
+    }
+
+    if (rs2 == null) {
+      num2 = 0;
+    } else {
+      num2 = Integer.parseInt(rs2);
+    }
+
+    return num1 + num2;
+
+  }
+
+  @Override
+  public long getTotalAmountSuccessOrderByMonth(String month) {
+    String rs1 = ORDER_REPOSITORY.totalAmountATM(month);
+    String rs2 = ORDER_REPOSITORY.totalAmountCOD(month);
+    long num1, num2;
+
+    if (rs1 == null) {
+      num1 = 0;
+    } else {
+      num1 = Long.parseLong(rs1);
+    }
+
+    if (rs2 == null) {
+      num2 = 0;
+    } else {
+      num2 = Long.parseLong(rs2);
+    }
+
+    System.out.print(num1);
+    System.out.print(",");
+    System.out.print(num2);
+    return num1 + num2;
+
+  }
+
+  @Override
+  public long getTotalProfitOrderByMonth(String month) {
+    String rs1 = ORDER_REPOSITORY.totalProfitATM(month);
+    String rs2 = ORDER_REPOSITORY.totalProfitCOD(month);
+    long num1, num2;
+
+    if (rs1 == null) {
+      num1 = 0;
+    } else {
+      num1 = Long.parseLong(rs1);
+    }
+
+    if (rs2 == null) {
+      num2 = 0;
+    } else {
+      num2 = Long.parseLong(rs2);
+    }
+    System.out.print(num1);
+    System.out.print(num2);
+    return num1 + num2;
+  }
+
+  @Override
+  public List<Members> getMemberByState(int state) {
+    return MEMBER_REPOSITORY.getMemberByState(state);
+  }
+
+  @Override
+  public List<Map<String, Long>> getDailyRevenue(String startDate, String endDate) {
+    return ORDER_REPOSITORY.getDailyRevenueByDay(startDate, endDate);
+  }
+
+  @Override
+  public List<Map<String, Long>> getDailyMoneyATM(String startDate, String endDate) {
+    return ORDER_REPOSITORY.getDailyMoneyReceiveByDayATM(startDate, endDate); 
+  }
+
+  @Override
+  public List<Map<String, Long>> getDailyMoneyCOD(String startDate, String endDate) {
+    return ORDER_REPOSITORY.getDailyMoneyReceiveByDayCOD(startDate, endDate); 
   }
 
 }

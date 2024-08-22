@@ -1,10 +1,8 @@
 package com.example.TimeHarmony.repository;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -145,13 +143,11 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
   @Query(value = "SELECT sum([total_price]/51)  FROM [dbo].[Orders] WHERE state = 3 and payment_method = 'COD' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
   String totalProfitCOD(@Param("month") String month);
 
-  @Query(value = "select convert(varchar(10), create_time, 120) as date, sum(total_price) AS daily_revenue FROM [dbo].[Orders] where create_time between convert(datetime, :startDate, 120) and convert(datetime, :endDate, 120) and (state <> 4 and state <> 5 ) and payment_method = 'ATM' GROUP BY CONVERT(VARCHAR(10), create_time, 120) ORDER BY CONVERT(VARCHAR(10), create_time, 120)", nativeQuery = true)
-  List<Objects[]> getDailyMoneyReceiveByDayATM(@Param("startDate") LocalDate startDate,
-      @Param("endDate") LocalDate endDate);
+  @Query(value = "SELECT create_time AS date, SUM(total_price) AS daily_money FROM [dbo].[Orders] WHERE create_time BETWEEN '2024-08-11' AND '2024-08-26' AND(state <>4 and state <> 5 ) and payment_method = 'ATM' GROUP BY create_time ORDER BY create_time", nativeQuery = true)
+  List<Map<String, Long>> getDailyMoneyReceiveByDayATM(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-  @Query(value = "select convert(varchar(10), create_time, 120) as date, sum(total_price) AS daily_revenue FROM [dbo].[Orders] where create_time between convert(datetime, :startDate, 120) and convert(datetime, :endDate, 120) and state = 3 and payment_method = 'COD' GROUP BY CONVERT(VARCHAR(10), create_time, 120) ORDER BY CONVERT(VARCHAR(10), create_time, 120)", nativeQuery = true)
-  List<Objects[]> getDailyMoneyReceiveByDayCOD(@Param("startDate") LocalDate startDate,
-      @Param("endDate") LocalDate endDate);
+  @Query(value = "SELECT received_date AS date, SUM(total_price) AS daily_money FROM [dbo].[Orders] WHERE received_date BETWEEN :startDate AND :endDate AND state = 3 and payment_method = 'COD' GROUP BY received_date ORDER BY received_date", nativeQuery = true)
+  List<Map<String, Long>> getDailyMoneyReceiveByDayCOD(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
   @Query(value = "SELECT received_date AS date, SUM(total_price)/51 AS daily_revenue \r\n" + //
       "FROM [dbo].[Orders]\r\n" + //
@@ -160,5 +156,7 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
       "GROUP BY received_date\r\n" + //
       "ORDER BY received_date", nativeQuery = true)
   List<Map<String, Long>> getDailyRevenueByDay(@Param("startDate") String startDate, @Param("endDate") String endDate);
+
+  
 
 }
