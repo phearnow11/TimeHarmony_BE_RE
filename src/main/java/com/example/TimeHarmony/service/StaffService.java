@@ -2,9 +2,15 @@ package com.example.TimeHarmony.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +18,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.TimeHarmony.entity.AppraiseRequest;
 import com.example.TimeHarmony.entity.OrderLocation;
+import com.example.TimeHarmony.entity.Orders;
 import com.example.TimeHarmony.entity.Watch;
 import com.example.TimeHarmony.enumf.OrderState;
+import com.example.TimeHarmony.enumf.RequestStatus;
 import com.example.TimeHarmony.enumf.StaffRole;
 import com.example.TimeHarmony.repository.AppraiseRequestRepository;
 import com.example.TimeHarmony.repository.OrderLocationRepository;
@@ -38,11 +46,18 @@ public class StaffService implements IStaffService {
   private StringService STRING_SERVICE;
   @Autowired
   private AppraiseRequestRepository APPRAISE_REQUEST_REPOSITORY;
+  @Autowired
+  private OrderService ORDER_SERVICE;
+
+  public Timer ORDER_SUCCESS_TIMER;
 
   @Override
   public String approveWatch(String watch_id) {
     byte APPROVED_STATE = 1;
     try {
+      if (APPRAISE_REQUEST_REPOSITORY.getStatusViaWatch(watch_id) != RequestStatus.PROCESSING)
+        throw new Exception("Logic Error");
+      APPRAISE_REQUEST_REPOSITORY.updateStatusViaWatch(RequestStatus.COMPLETED, watch_id);
       WATCH_REPOSITORY.approveWatch(Timestamp.valueOf(LocalDateTime.now()), watch_id, APPROVED_STATE);
       ;
       return "Watch Approved";
@@ -65,6 +80,9 @@ public class StaffService implements IStaffService {
   public String unApproveWatch(String watch_id) {
     byte UNAPPROVED_STATE = 2;
     try {
+      if (APPRAISE_REQUEST_REPOSITORY.getStatusViaWatch(watch_id) != RequestStatus.PROCESSING)
+        throw new Exception("Logic Error");
+      APPRAISE_REQUEST_REPOSITORY.updateStatusViaWatch(RequestStatus.FAILED, watch_id);
       WATCH_REPOSITORY.approveWatch(Timestamp.valueOf(LocalDateTime.now()), watch_id, UNAPPROVED_STATE);
       ;
       return "Watch Deleted";
@@ -76,12 +94,23 @@ public class StaffService implements IStaffService {
   @Override
   public String shipOrder(String id, String oid) {
     try {
+      System.out.println(UUID.fromString(id));
       if (STAFF_REPOSITORY.getRole(UUID.fromString(id)) != StaffRole.SHIPPER)
         throw new Exception("You are not shipper");
+      System.out.println("0a");
       if (ORDER_REPOSITORY.getOrderWatchStates(oid).contains(3))
         throw new Exception("Order is not packed");
+      System.out.println("1a");
       if (ORDER_REPOSITORY.getState(oid) == OrderState.SHIPPING)
         throw new Exception("Order is already shipping");
+      System.out.println("2a");
+      if (STAFF_REPOSITORY.getShipperAssigned(oid) == null)
+        throw new Exception("Order is not assigned");
+      System.out.println(STAFF_REPOSITORY.getShipperAssigned(oid));
+      // if (STAFF_REPOSITORY.getShipperAssigned(oid) != id)
+      // throw new Exception("Order is assigned to someone else");
+      System.out.println("4a");
+
       ORDER_REPOSITORY.shipOrder(oid);
       STAFF_REPOSITORY.shippingOrder(UUID.fromString(id), oid);
       return "Order is shipping";
@@ -102,12 +131,38 @@ public class StaffService implements IStaffService {
         throw new Exception("You are not shipper");
       if (ORDER_REPOSITORY.getState(oid) != OrderState.SHIPPING)
         throw new Exception("Logic error");
+
+      // Auto Confirm Order after 3 days
+      LocalDateTime fifteenMinuteLater = LocalDateTime.now().plusDays(3);
+      Date fifteenMinuteLaterAsDate = Date.from(fifteenMinuteLater.atZone(ZoneId.systemDefault()).toInstant());
+      TimerTask orderSuccessTask = new TimerTask() {
+        public void run() {
+          ORDER_SERVICE.confirmOrder(oid);
+        }
+      };
+
+      ORDER_SUCCESS_TIMER = new Timer();
+      ORDER_SUCCESS_TIMER.schedule(orderSuccessTask, fifteenMinuteLaterAsDate);
+
       ORDER_REPOSITORY.shippedOrder(oid);
       STAFF_REPOSITORY.shippedOrder(oid);
       WATCH_REPOSITORY.shippedOrder(oid);
       return "Order shipped confirm";
     } catch (Exception e) {
       return e.toString();
+    }
+  }
+
+  @Override
+  public List<Orders> getMyAssignedOrder(String sid) {
+    try {
+      if (STAFF_REPOSITORY.getRole(UUID.fromString(sid)) != StaffRole.SHIPPER)
+        throw new Exception("Not Shipper");
+      List<String> ids = STAFF_REPOSITORY.getMyAssignedOrder(UUID.fromString(sid));
+      return ORDER_REPOSITORY.findAllById(ids);
+    } catch (Exception e) {
+      System.out.println(e.toString());
+      return null;
     }
   }
 
@@ -153,6 +208,44 @@ public class StaffService implements IStaffService {
     try {
       return APPRAISE_REQUEST_REPOSITORY.getRequestFromSeller(UUID.fromString(sid));
     } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @Override
+  public String acceptRequest(String request_id, String aid) {
+    try {
+      return "Request Accepted";
+    } catch (Exception e) {
+      return e.toString();
+    }
+  }
+
+  @Override
+  public List<AppraiseRequest> getMyRequests(String aid) {
+    try {
+      return APPRAISE_REQUEST_REPOSITORY.getMyAssignedRequest(UUID.fromString(aid));
+    } catch (Exception e) {
+      System.out.println(e.toString());
+      return null;
+    }
+  }
+
+  @Override
+  public Map<String, List<String>> getMyAssignedWatch(String aid) {
+    try {
+      Map<String, List<String>> res = new HashMap<>();
+      List<String> wids = new ArrayList<>();
+      List<String> rids = new ArrayList<>();
+      for (AppraiseRequest request : APPRAISE_REQUEST_REPOSITORY.getMyAssignedRequest(UUID.fromString(aid))) {
+        wids.add(request.getAppraise_watch());
+        rids.add(request.getRequest_id());
+      }
+      res.put("wids", wids);
+      res.put("rids", rids);
+      return res;
+    } catch (Exception e) {
+      System.out.println(e.toString());
       return null;
     }
   }
