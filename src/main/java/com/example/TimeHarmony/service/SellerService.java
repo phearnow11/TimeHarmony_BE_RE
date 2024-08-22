@@ -17,6 +17,7 @@ import com.example.TimeHarmony.entity.Authorities;
 import com.example.TimeHarmony.entity.Sellers;
 import com.example.TimeHarmony.entity.Users;
 import com.example.TimeHarmony.entity.Watch;
+import com.example.TimeHarmony.enumf.RequestStatus;
 import com.example.TimeHarmony.enumf.Roles;
 import com.example.TimeHarmony.repository.AppraiseRequestRepository;
 import com.example.TimeHarmony.repository.AuthoritiesRepository;
@@ -56,7 +57,7 @@ public class SellerService implements ISellerService {
 
       watch.setSeller(seller);
       WATCH_REPOSITORY.save(watch);
-      return "Watch Created";
+      return watch.getWatch_id();
     } catch (Exception e) {
       return e.toString();
     }
@@ -308,15 +309,32 @@ public class SellerService implements ISellerService {
     try {
       if (data.get("watch_id") == null)
         throw new Exception("Watch ID is required");
+      if (APPRAISE_REQUEST_REPOSITORY.checkWatch(data.get("watch_id").toString()) != null)
+        throw new Exception("Request of this watch is already created");
+      if (data.get("appoinment_date") == null )
+        throw new Exception("Appoinment Date is required"); 
       String request_id = "R" + STRING_SERVICE.autoGenerateString(11);
       AppraiseRequest request = new AppraiseRequest(request_id, UUID.fromString(sid), null,
           data.get("watch_id").toString(),
-          Timestamp.valueOf(LocalDateTime.now()), data.get("note") == null ? null : data.get("note").toString());
+          Timestamp.valueOf(data.get("appoinment_date").toString()), 
+          Timestamp.valueOf(LocalDateTime.now()),
+          data.get("note") == null ? null : data.get("note").toString(), 
+          RequestStatus.NEW);
       APPRAISE_REQUEST_REPOSITORY.save(request);
 
       return "Request created";
     } catch (Exception e) {
       return e.toString();
+    }
+  }
+
+  @Override
+  public List<AppraiseRequest> getMyRequest(String sid) {
+    try {
+      return APPRAISE_REQUEST_REPOSITORY.getRequestFromSeller(UUID.fromString(sid));
+    } catch (Exception e) {
+      System.out.println(e.toString());
+      return null;
     }
   }
 
