@@ -56,11 +56,12 @@ public class StaffController {
     return STAFF_SERVICE.unApproveWatch(watch_id);
   }
 
-  @RequestMapping(value = "get/watch", method = RequestMethod.GET)
-  public List<Map<String, String>> getWatches() {
+  @RequestMapping(value = "get/watch/{id}", method = RequestMethod.GET)
+  public List<Map<String, String>> getWatches(@PathVariable("id") String aid) {
     List<Map<String, String>> res = new ArrayList<>();
     Map<String, String> watch = new Hashtable<>();
-    List<Watch> ads = WATCH_SERVICE.getWatchesbyState();
+    Map<String, List<String>> data = STAFF_SERVICE.getMyAssignedWatch(aid);
+    List<Watch> ads = WATCH_SERVICE.getWatchByIds(data.get("wids"));
     for (Watch w : ads) {
       watch.put("id", w.getWatch_id());
       watch.put("name", w.getWatch_name());
@@ -118,9 +119,9 @@ public class StaffController {
     return WATCH_SERVICE.deleteWatch(wid, sid);
   }
 
-  @RequestMapping(value = "get/pending-order", method = RequestMethod.GET)
-  public List<Orders> getPendingOrders() {
-    return ORDER_SERVICE.getPendingOrder();
+  @RequestMapping(value = "get/my-assigned-order/{id}", method = RequestMethod.GET)
+  public List<Orders> getMyAssignedOrder(@PathVariable("id") String id) {
+    return STAFF_SERVICE.getMyAssignedOrder(id);
   }
 
   @RequestMapping(value = "ship/order", method = RequestMethod.POST)
@@ -144,11 +145,12 @@ public class StaffController {
   }
 
   @RequestMapping(value = "update/fields/{watch_id}", method = RequestMethod.PATCH)
-  public Watch updateWatch(@RequestBody Map<String, String> data, @PathVariable String watch_id) {
+  public String updateWatch(@RequestBody Map<String, String> data, @PathVariable String watch_id) {
     Watch existingWatch = WATCH_SERVICE.getWatchById(watch_id);
-    System.out.println(data.get("test"));
     existingWatch = WATCH_SERVICE.updateWatch(data, existingWatch);
-    return existingWatch;
+    if (existingWatch == null)
+      return "Update error";
+    return "Updated";
   }
 
   @RequestMapping(value = "get/appraise-requests/from", method = RequestMethod.GET)
@@ -156,4 +158,13 @@ public class StaffController {
     return STAFF_SERVICE.getRequestsFromSeller(sid);
   }
 
+  @RequestMapping(value = "accept/request/{id}", method = RequestMethod.PATCH)
+  public String acceptRequest(@PathVariable("id") String aid, @RequestParam("request_id") String request_id) {
+    return STAFF_SERVICE.acceptRequest(request_id, aid);
+  }
+
+  @RequestMapping(value = "get/my-request/{id}", method = RequestMethod.GET)
+  public List<AppraiseRequest> getMyRequest(@PathVariable("id") String aid) {
+    return STAFF_SERVICE.getMyRequests(aid);
+  }
 }

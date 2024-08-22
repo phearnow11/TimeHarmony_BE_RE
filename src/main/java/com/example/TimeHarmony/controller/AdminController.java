@@ -204,7 +204,7 @@ public class AdminController {
       @RequestBody Map<String, Object> data) {
     return ADMIN_SERVICE.assignAppraiser(request_id, aid, data.get("appointment_date").toString());
   }
-  
+
   @RequestMapping(value = "update/request", method = RequestMethod.PATCH)
   public String updateRequest(@RequestParam("rid") String rid,
       @RequestBody Map<String, String> data) {
@@ -215,4 +215,5 @@ public class AdminController {
   public String assignShipper(@RequestParam("sid") String sid, @RequestParam("oid") String oid) {
     return ADMIN_SERVICE.assignShipper(oid, sid);
   }
+
 }
