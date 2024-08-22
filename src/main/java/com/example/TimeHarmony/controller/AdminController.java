@@ -1,12 +1,15 @@
 package com.example.TimeHarmony.controller;
 
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.TimeHarmony.builder.MemberBuilder;
 import com.example.TimeHarmony.builder.WatchBuilder;
 import com.example.TimeHarmony.entity.Admins;
+import com.example.TimeHarmony.entity.AppraiseRequest;
 import com.example.TimeHarmony.entity.Members;
 import com.example.TimeHarmony.entity.Orders;
 import com.example.TimeHarmony.entity.Payment;
+import com.example.TimeHarmony.entity.Staff;
 import com.example.TimeHarmony.entity.Users;
 import com.example.TimeHarmony.entity.Watch;
 import com.example.TimeHarmony.enumf.Roles;
@@ -52,8 +57,8 @@ public class AdminController {
   @Autowired
   private ReportService REPORT_SERVICE;
 
-  @Autowired 
-  private PaymentService PAYMENT_SERVICE; 
+  @Autowired
+  private PaymentService PAYMENT_SERVICE;
 
   @RequestMapping(value = "get/members", method = RequestMethod.GET)
   public List<Members> getaMembers() {
@@ -183,8 +188,31 @@ public class AdminController {
   public String updateStaffRole(@RequestParam("id") String id, @RequestParam("role") StaffRole role) {
     return ADMIN_SERVICE.changeStaffRole(id, role);
   }
-  @RequestMapping(value= "get/refund-payment", method = RequestMethod.GET)
+
+  @RequestMapping(value = "get/refund-payment", method = RequestMethod.GET)
   public List<Payment> getRefundMember() {
-    return ADMIN_SERVICE.getAllFailOrder(); 
+    return ADMIN_SERVICE.getAllFailOrder();
+  }
+
+  @RequestMapping(value = "get/requests", method = RequestMethod.GET)
+  public List<AppraiseRequest> getRequests() {
+    return ADMIN_SERVICE.getAllRequest();
+  }
+
+  @RequestMapping(value = "assign/request", method = RequestMethod.PATCH)
+  public String assignRequest(@RequestParam("request_id") String request_id, @RequestParam("appraiser_id") String aid,
+      @RequestBody Map<String, Object> data) {
+    return ADMIN_SERVICE.assignAppraiser(request_id, aid, data.get("appointment_date").toString());
+  }
+  
+  @RequestMapping(value = "update/request", method = RequestMethod.PATCH)
+  public String updateRequest(@RequestParam("rid") String rid,
+      @RequestBody Map<String, String> data) {
+    return ADMIN_SERVICE.updateAssignAppraiser(rid, data.get("appraiser_id"), data.get("date"));
+  }
+
+  @RequestMapping(value = "assign/shipper", method = RequestMethod.POST)
+  public String assignShipper(@RequestParam("sid") String sid, @RequestParam("oid") String oid) {
+    return ADMIN_SERVICE.assignShipper(oid, sid);
   }
 }
