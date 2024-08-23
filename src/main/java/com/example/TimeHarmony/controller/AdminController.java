@@ -270,9 +270,9 @@ public class AdminController {
     return ADMIN_SERVICE.getTotalProfitOrderByMonth(month);
   }
 
-  @RequestMapping(value = "get/member/by-state/{state}", method = RequestMethod.GET)
-  public List<Members> getMember(@PathVariable("state") int state) {
-    return ADMIN_SERVICE.getMemberByState(state);
+  @RequestMapping(value = "get/member/by", method = RequestMethod.GET)
+  public List<Members> getMember(@RequestParam("state") int state, @RequestParam("page") int page) {
+    return ADMIN_SERVICE.getMemberByState(state, page); 
   }
 
   @RequestMapping(value = "assign/shipper", method = RequestMethod.POST)
