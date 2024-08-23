@@ -15,8 +15,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.TimeHarmony.dtos.Filter;
 import com.example.TimeHarmony.dtos.WatchImages;
+import com.example.TimeHarmony.entity.AppraiseRequest;
 import com.example.TimeHarmony.entity.Sellers;
 import com.example.TimeHarmony.entity.Watch;
+import com.example.TimeHarmony.enumf.RequestStatus;
+import com.example.TimeHarmony.repository.AppraiseRequestRepository;
 import com.example.TimeHarmony.repository.WatchRepository;
 import com.example.TimeHarmony.service.interfacepack.IWatchService;
 
@@ -28,6 +31,9 @@ public class WatchService implements IWatchService {
 
   @Autowired
   private SellerService SELLER_REPOSITORY;
+
+  @Autowired
+  private AppraiseRequestRepository APPRAISE_REQUEST_REPOSITORY;
 
   @Override
   public String generateWatchId() {
@@ -418,6 +424,19 @@ public class WatchService implements IWatchService {
     } catch (Exception e) {
       System.out.println(e.toString());
       return null;
+    }
+  }
+
+  @Override
+  public Map<String, Object> getWatchByIdWithAppraiser(String wid) {
+    Map<String, Object> res = new HashMap<>();
+    try {
+      res.put("watch", WATCH_REPOSITORY.findById(wid).get());
+      res.put("appraised_by", APPRAISE_REQUEST_REPOSITORY.getAppraiserByWatchAndStatus(wid, RequestStatus.COMPLETED));
+      return res;
+    } catch (Exception e) {
+      System.out.println(e);
+      return res;
     }
   }
 

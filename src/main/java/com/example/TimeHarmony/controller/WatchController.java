@@ -65,8 +65,8 @@ public class WatchController {
   }
 
   @RequestMapping(value = "get/{id}", method = RequestMethod.GET)
-  public Watch getWatchbyId(@PathVariable("id") String id) {
-    return WATCH_SERVICE.getWatchById(id);
+  public Map<String, Object> getWatchbyId(@PathVariable("id") String id) {
+    return WATCH_SERVICE.getWatchByIdWithAppraiser(id);
   }
 
   @RequestMapping(value = "update/images/{id}", method = RequestMethod.POST)
