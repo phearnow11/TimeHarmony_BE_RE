@@ -478,17 +478,17 @@ public class AdminService implements IAdminService {
 
   @Override
   public List<Map<String, Long>> getDailyMoneyATM(String startDate, String endDate) {
-    return ORDER_REPOSITORY.getDailyMoneyReceiveByDayATM(startDate, endDate); 
+    return ORDER_REPOSITORY.getDailyMoneyReceiveByDayATM(startDate, endDate);
   }
 
   @Override
   public List<Map<String, Long>> getDailyMoneyCOD(String startDate, String endDate) {
-    return ORDER_REPOSITORY.getDailyMoneyReceiveByDayCOD(startDate, endDate); 
+    return ORDER_REPOSITORY.getDailyMoneyReceiveByDayCOD(startDate, endDate);
   }
 
   @Override
   public List<Map<String, Integer>> getDailyNumOrderSuccess(String startDate, String endDate) {
-    return ORDER_REPOSITORY.getSuccessNumOrderByDay(startDate, endDate); 
+    return ORDER_REPOSITORY.getSuccessNumOrderByDay(startDate, endDate);
   }
 
 }

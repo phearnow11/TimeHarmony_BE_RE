@@ -301,7 +301,12 @@ public class AdminController {
   @RequestMapping(value = "get/daily-success-order/{startDate}to{endDate}", method = RequestMethod.GET)
   public List<Map<String, Integer>> getDailySuccessOrder(@PathVariable("startDate") String startDate,
       @PathVariable("endDate") String endDate) {
-    return ADMIN_SERVICE.getDailyNumOrderSuccess(startDate, endDate); 
+    return ADMIN_SERVICE.getDailyNumOrderSuccess(startDate, endDate);
   }
-}
 
+  @RequestMapping(value = "delete/watch/{wid}", method = RequestMethod.DELETE)
+  public String deleteWatch(@PathVariable("wid") String wid) {
+    return ADMIN_SERVICE.deleteWatch(wid);
+  }
+
+}

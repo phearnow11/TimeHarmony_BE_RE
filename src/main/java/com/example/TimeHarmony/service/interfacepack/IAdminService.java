@@ -21,8 +21,6 @@ public interface IAdminService {
 
   public List<Watch> getWatches();
 
-  public String deleteWatch(String id);
-
   public String deleteMemberbyId(String id);
 
   public String banMemberbyId(String username);
@@ -75,20 +73,21 @@ public interface IAdminService {
 
   String assignShipper(String oid, String mid);
 
-  int getSuccessOrderByMonth(String month); 
+  int getSuccessOrderByMonth(String month);
 
-  long getTotalAmountSuccessOrderByMonth(String month); 
+  long getTotalAmountSuccessOrderByMonth(String month);
 
-  long getTotalProfitOrderByMonth(String month); 
+  long getTotalProfitOrderByMonth(String month);
 
-  List<Members> getMemberByState(int state); 
+  List<Members> getMemberByState(int state);
 
-  List<Map<String, Long>>getDailyMoneyATM(String startDate, String endDate); 
+  List<Map<String, Long>> getDailyMoneyATM(String startDate, String endDate);
 
-  List<Map<String, Long>>getDailyMoneyCOD(String startDate, String endDate); 
+  List<Map<String, Long>> getDailyMoneyCOD(String startDate, String endDate);
 
-  List<Map<String, Long>>getDailyRevenue(String startDate, String endDate); 
+  List<Map<String, Long>> getDailyRevenue(String startDate, String endDate);
 
-  List<Map<String, Integer>> getDailyNumOrderSuccess(String startDate, String endDate); 
+  List<Map<String, Integer>> getDailyNumOrderSuccess(String startDate, String endDate);
 
+  String deleteWatch(String wid);
 }
