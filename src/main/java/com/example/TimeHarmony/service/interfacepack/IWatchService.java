@@ -71,4 +71,6 @@ public interface IWatchService {
   public List<Integer> getWatchState(List<String> ids);
 
   Watch updateWatch(Map<String, String> data, Watch existingWatch);
+
+  Map<String, Object> getWatchByIdWithAppraiser(String wid);
 }
