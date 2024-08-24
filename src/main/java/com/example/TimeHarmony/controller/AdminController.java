@@ -271,8 +271,9 @@ public class AdminController {
   }
 
   @RequestMapping(value = "get/member/by", method = RequestMethod.GET)
-  public List<Members> getMember(@RequestParam("state") int state, @RequestParam("page") int page) {
-    return ADMIN_SERVICE.getMemberByState(state, page); 
+  public List<Object> getMember(@RequestParam("state") int state, @RequestParam("page") int page,
+      @RequestParam("role") String role, @RequestParam("staff") String staff_role) {
+    return ADMIN_SERVICE.getMemberByState(state, role, staff_role, page);
   }
 
   @RequestMapping(value = "assign/shipper", method = RequestMethod.POST)

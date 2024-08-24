@@ -128,9 +128,10 @@ public interface MemberRepository extends JpaRepository<Members, UUID> {
   String getPassword(@Param("username") String username);
 
   @Query(value = "select m.user_log_info from Members m where m.user_log_info.enabled = :state")
-  List<Users> getUserNameByState(@Param("state") int state); 
+  List<Users> getUserNameByState(@Param("state") int state);
 
-  @Query(value = "select m from Members m where m.user_log_info in :list")
-  List<Members> getMembersByUserNameList(@Param("list") List<Users> listUserName, Pageable pageable); 
+  @Query(value = "select m from Members m where m.user_log_info in :list and m.user_log_info.authorities.authority = :role")
+  List<Members> getMembersByUserNameList(@Param("list") List<Users> listUserName, @Param("role") String role,
+      Pageable pageable);
 
 }

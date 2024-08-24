@@ -1,8 +1,8 @@
 package com.example.TimeHarmony.service;
 
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -469,8 +469,6 @@ public class AdminService implements IAdminService {
     return num1 + num2;
   }
 
-  
-
   @Override
   public List<Map<String, Long>> getDailyRevenue(String startDate, String endDate) {
     return ORDER_REPOSITORY.getDailyRevenueByDay(startDate, endDate);
@@ -492,13 +490,23 @@ public class AdminService implements IAdminService {
   }
 
   @Override
-  public List<Members> getMemberByState(int state, int page) {
-    Pageable pageable = PageRequest.of(page, 10); 
-    List<Users> uns = MEMBER_REPOSITORY.getUserNameByState(state); 
-    return MEMBER_REPOSITORY.getMembersByUserNameList(uns, pageable); 
-    
+  public List<Object> getMemberByState(int state, String role, String staff_role, int page) {
+    Pageable pageable = PageRequest.of(page, 10);
+    List<Users> uns = MEMBER_REPOSITORY.getUserNameByState(state);
+    if (role.isEmpty() || role == null) {
+      System.out.println("Role is required");
+      return null;
+    }
+    if (role.matches("staff") && (staff_role.isEmpty() || staff_role == null)) {
+      System.out.println("Staff role is required");
+      return null;
+    } else if (role.matches("staff") && staff_role != null) {
+      StaffRole srole = StaffRole.FAKE;
+      return new ArrayList<Object>(STAFF_REPOSITORY.getStaffByRole(srole.convertFromString(staff_role.toUpperCase())));
+    }
+    String user_role = "ROLE_" + role.toUpperCase();
+
+    return new ArrayList<Object>(MEMBER_REPOSITORY.getMembersByUserNameList(uns, user_role, pageable));
+
   }
-
-  
-
 }
