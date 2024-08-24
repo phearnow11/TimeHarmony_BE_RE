@@ -143,7 +143,7 @@ public interface OrderRepository extends JpaRepository<Orders, String> {
   @Query(value = "SELECT sum([total_price]/51)  FROM [dbo].[Orders] WHERE state = 3 and payment_method = 'COD' and CONVERT(VARCHAR(7), create_time, 120) = :month", nativeQuery = true)
   String totalProfitCOD(@Param("month") String month);
 
-  @Query(value = "SELECT create_time AS date, SUM(total_price) AS daily_money FROM [dbo].[Orders] WHERE create_time BETWEEN '2024-08-11' AND '2024-08-26' AND(state <>4 and state <> 5 ) and payment_method = 'ATM' GROUP BY create_time ORDER BY create_time", nativeQuery = true)
+  @Query(value = "SELECT create_time AS date, SUM(total_price) AS daily_money FROM [dbo].[Orders] WHERE create_time BETWEEN :startDate AND :endDate AND(state <>4 and state <> 5 ) and payment_method = 'ATM' GROUP BY create_time ORDER BY create_time", nativeQuery = true)
   List<Map<String, Long>> getDailyMoneyReceiveByDayATM(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
   @Query(value = "SELECT received_date AS date, SUM(total_price) AS daily_money FROM [dbo].[Orders] WHERE received_date BETWEEN :startDate AND :endDate AND state = 3 and payment_method = 'COD' GROUP BY received_date ORDER BY received_date", nativeQuery = true)
