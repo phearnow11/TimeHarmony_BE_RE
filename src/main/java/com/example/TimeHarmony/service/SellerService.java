@@ -263,7 +263,7 @@ public class SellerService implements ISellerService {
     return total;
   }
 
- //dang sua
+  // dang sua
   @Override
   public float getProfitByMonth(int month, int year, String sid) {
     List<Watch> wlist = WATCH_REPOSITORY.getWatchSoldByMonth(month, year, UUID.fromString(sid));
@@ -312,14 +312,18 @@ public class SellerService implements ISellerService {
         throw new Exception("Watch ID is required");
       if (APPRAISE_REQUEST_REPOSITORY.checkWatch(data.get("watch_id").toString()) != null)
         throw new Exception("Request of this watch is already created");
-      if (data.get("appoinment_date") == null )
-        throw new Exception("Appoinment Date is required"); 
+      if (data.get("appoinment_date") == null)
+        throw new Exception("Appoinment Date is required");
+      if (Timestamp.valueOf(data.get("appoinment_date").toString())
+          .before(Timestamp.valueOf(LocalDateTime.now().plusDays(1)))) {
+        throw new Exception("Appointment date must be after today");
+      }
       String request_id = "R" + STRING_SERVICE.autoGenerateString(11);
       AppraiseRequest request = new AppraiseRequest(request_id, UUID.fromString(sid), null,
           data.get("watch_id").toString(),
-          Timestamp.valueOf(data.get("appoinment_date").toString()), 
+          Timestamp.valueOf(data.get("appoinment_date").toString()),
           Timestamp.valueOf(LocalDateTime.now()),
-          data.get("note") == null ? null : data.get("note").toString(), 
+          data.get("note") == null ? null : data.get("note").toString(),
           RequestStatus.NEW);
       APPRAISE_REQUEST_REPOSITORY.save(request);
 
@@ -341,7 +345,7 @@ public class SellerService implements ISellerService {
 
   @Override
   public List<Map<String, Long>> getDailyProfit(String sid, String startDate, String endDate) {
-    return WATCH_REPOSITORY.getDailyProfit(UUID.fromString(sid), startDate, endDate); 
+    return WATCH_REPOSITORY.getDailyProfit(UUID.fromString(sid), startDate, endDate);
   }
 
 }
