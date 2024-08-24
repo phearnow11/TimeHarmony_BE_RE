@@ -79,7 +79,7 @@ public interface IAdminService {
 
   long getTotalProfitOrderByMonth(String month);
 
-  List<Members> getMemberByState(int state);
+  List<Members> getMemberByState(int state, int page); 
 
   List<Map<String, Long>> getDailyMoneyATM(String startDate, String endDate);
 

@@ -1,5 +1,6 @@
 package com.example.TimeHarmony.service;
 
+
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -8,6 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.TimeHarmony.builder.MemberBuilder;
@@ -466,10 +469,7 @@ public class AdminService implements IAdminService {
     return num1 + num2;
   }
 
-  @Override
-  public List<Members> getMemberByState(int state) {
-    return MEMBER_REPOSITORY.getMemberByState(state);
-  }
+  
 
   @Override
   public List<Map<String, Long>> getDailyRevenue(String startDate, String endDate) {
@@ -490,5 +490,15 @@ public class AdminService implements IAdminService {
   public List<Map<String, Integer>> getDailyNumOrderSuccess(String startDate, String endDate) {
     return ORDER_REPOSITORY.getSuccessNumOrderByDay(startDate, endDate);
   }
+
+  @Override
+  public List<Members> getMemberByState(int state, int page) {
+    Pageable pageable = PageRequest.of(page, 10); 
+    List<Users> uns = MEMBER_REPOSITORY.getUserNameByState(state); 
+    return MEMBER_REPOSITORY.getMembersByUserNameList(uns, pageable); 
+    
+  }
+
+  
 
 }
